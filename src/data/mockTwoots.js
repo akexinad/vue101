@@ -1,4 +1,4 @@
-export const mockcontents = [
+export const mockTwoots = [
     {
       id: 1,
       content:

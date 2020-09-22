@@ -3,6 +3,7 @@
     <div class="user-profile__sidebar">
         <div class="user-profile__user-panel">
             <h1 class="user-profile__username">@{{ state.user.username }}</h1>
+            <h2>{{ userId }}</h2>
             <div v-if="state.user.isAdmin" class="user-profile__admin-badge">Admin</div>
             <div class="user-profile__follower-count">
                 <strong>Followers:</strong>
@@ -22,13 +23,26 @@
 </template>
 
 <script>
-import TwootItem from "./TwootItem";
-import CreateTwootPanel from "./CreateTwootPanel";
 import {
     reactive,
     watch,
-    onMounted
+    onMounted,
+    computed
 } from 'vue';
+import {
+    useRoute
+} from "vue-router";
+
+import {
+    users
+} from "../assets/users"
+// import {
+//     mockTwoots
+// } from "../data/mockTwoots.js"
+
+import TwootItem from "../components/TwootItem";
+
+import CreateTwootPanel from "../components/CreateTwootPanel";
 
 export default {
     name: "UserProfile",
@@ -37,34 +51,13 @@ export default {
         CreateTwootPanel
     },
     setup() {
+        const route = useRoute();
+        const userId = computed(() => route.params.userId)
 
         const state = reactive({
             followers: 0,
-            user: {
-                id: 1,
-                username: "_fedefel",
-                firstName: "federico",
-                lastName: "fellini",
-                email: "fellini@ex.it",
-                isAdmin: true,
-                twoots: [{
-                        id: 1,
-                        content: "Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit.",
-                    },
-                    {
-                        id: 2,
-                        content: "Fusce consequat. Nulla nisl. Nunc nisl.",
-                    },
-                    {
-                        id: 3,
-                        content: "Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero.",
-                    },
-                    {
-                        id: 4,
-                        content: "Praesent id massa id nisl venenatis lacinia. Aenean sit amet justo. Morbi ut odio.",
-                    }
-                ],
-            },
+            user: users[userId.value - 1] || users[0],
+            // twoots: mockTwoots,
         })
 
         const createNewTwoot = (newTwootContent) => {
@@ -83,8 +76,6 @@ export default {
         }
 
         const followers = watch(() => state.followers, (newFolCount, oldFolCount) => {
-            console.log("hello")
-            console.log(oldFolCount, newFolCount)
             if (oldFolCount < newFolCount) {
                 console.log(`@${state.user.username} has gained a follower`);
             }
@@ -98,7 +89,7 @@ export default {
             toggleFavourite,
             followUser,
             followers,
-            onMounted
+            userId
         }
     },
 };
@@ -117,7 +108,7 @@ export default {
         padding: 20px;
         background-color: white;
         border-radius: 5px;
-        border: 1px solid #dfe3e8;
+        border: 1px solid #DFE3E8;
         margin-bottom: auto;
 
         h1 {
@@ -131,17 +122,6 @@ export default {
             margin-right: auto;
             padding: 0 10px;
             font-weight: bold;
-        }
-
-        .user-profile__create-twoot {
-            padding-top: 20px;
-            display: flex;
-            flex-direction: column;
-
-            &.--exceeded {
-                color: red;
-                border-color: red;
-            }
         }
     }
 

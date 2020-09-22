@@ -14,6 +14,15 @@
 <script>
 export default {
     name: "TwootItem",
+    setup(_, ctx) {
+        const favouriteTwoot = (id) => {
+            ctx.emit("favourite", id);
+        }
+
+        return {
+            favouriteTwoot
+        }
+    },
     props: {
         username: {
             type: String,
@@ -22,11 +31,6 @@ export default {
         twoot: {
             type: Object,
             required: true
-        }
-    },
-    methods: {
-        favouriteTwoot(id) {
-            this.$emit("favourite", id);
         }
     }
 };

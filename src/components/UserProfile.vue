@@ -2,11 +2,11 @@
 <div class="user-profile">
     <div class="user-profile__sidebar">
         <div class="user-profile__user-panel">
-            <h1 class="user-profile__username">@{{ user.username }}</h1>
-            <div v-if="user.isAdmin" class="user-profile__admin-badge">Admin</div>
+            <h1 class="user-profile__username">@{{ state.user.username }}</h1>
+            <div v-if="state.user.isAdmin" class="user-profile__admin-badge">Admin</div>
             <div class="user-profile__follower-count">
                 <strong>Followers:</strong>
-                {{ followers }}
+                {{ state.followers }}
             </div>
 
             <CreateTwootPanel @add-twoot="createNewTwoot" />
@@ -15,7 +15,7 @@
 
         <div class="user-profile__twoots-wrapper">
             <h2>My Twoots</h2>
-            <TwootItem v-for="twoot in user.twoots" :key="twoot.id" :username="user.username" :twoot="twoot" @favourite="toggleFavourite" />
+            <TwootItem v-for="twoot in state.user.twoots" :key="twoot.id" :username="state.user.username" :twoot="twoot" @favourite="toggleFavourite" />
         </div>
     </div>
 </div>
@@ -24,6 +24,11 @@
 <script>
 import TwootItem from "./TwootItem";
 import CreateTwootPanel from "./CreateTwootPanel";
+import {
+    reactive,
+    watch,
+    onMounted
+} from 'vue';
 
 export default {
     name: "UserProfile",
@@ -31,9 +36,9 @@ export default {
         TwootItem,
         CreateTwootPanel
     },
-    data() {
-        return {
+    setup() {
 
+        const state = reactive({
             followers: 0,
             user: {
                 id: 1,
@@ -60,31 +65,41 @@ export default {
                     }
                 ],
             },
-        };
-    },
-    watch: {
-        followers(newFolCount, oldFolCount) {
-            if (oldFolCount < newFolCount) {
-                console.log(`@${this.user.username} has gained a follower`);
-            }
-        },
-    },
-    methods: {
-        followUser() {
-            this.followers++;
-        },
-        toggleFavourite(id) {
-            console.log(`Favourite tweet id is ${id}`)
-        },
-        createNewTwoot(newTwootContent) {
-            this.user.twoots.unshift({
-                id: this.user.twoots.length + 1,
+        })
+
+        const createNewTwoot = (newTwootContent) => {
+            return state.user.twoots.unshift({
+                id: state.user.twoots.length + 1,
                 content: newTwootContent
             })
         }
-    },
-    mounted() {
-        this.followUser();
+
+        const followUser = () => {
+            state.followers++;
+        }
+
+        const toggleFavourite = (id) => {
+            console.log(`Favourite tweet id is ${id}`)
+        }
+
+        const followers = watch(() => state.followers, (newFolCount, oldFolCount) => {
+            console.log("hello")
+            console.log(oldFolCount, newFolCount)
+            if (oldFolCount < newFolCount) {
+                console.log(`@${state.user.username} has gained a follower`);
+            }
+        })
+
+        onMounted(() => followUser())
+
+        return {
+            state,
+            createNewTwoot,
+            toggleFavourite,
+            followUser,
+            followers,
+            onMounted
+        }
     },
 };
 </script>
